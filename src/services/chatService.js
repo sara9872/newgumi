@@ -1,5 +1,6 @@
 import { loadAllData } from './dataService';
 import { getPosts } from '../stores/boardStore';
+import { getWeatherSummary } from './weatherService';
 
 /**
  * 장소 데이터를 AI가 읽기 쉬운 한 줄 형식으로 변환합니다.
@@ -38,6 +39,8 @@ export async function buildLocalContext() {
 
   const boardPosts = getPosts();
 
+  const weatherSummary = await getWeatherSummary();
+
   const posts = (Array.isArray(boardPosts) ? boardPosts : [])
     .slice(0, 10)
     .map((post) => {
@@ -58,6 +61,9 @@ export async function buildLocalContext() {
     '[서비스 지역]',
     '구미 및 경북권',
     '포함 지역: 구미, 대구, 칠곡, 성주, 고령',
+    '',
+    '[오늘 날씨]',
+    weatherSummary,
     '',
     '[관광지 데이터]',
     attractions.length > 0
@@ -133,6 +139,8 @@ export async function askOpenAI(messages) {
 - 모델이 알고 있는 일반 지식이나 외부 정보를 추가하지 않는다.
 - 데이터에 없는 정보는 사실처럼 말하지 않는다.
 - 장소명, 주소, 전화번호, 날짜, 운영시간, 가격, 메뉴를 임의로 만들지 않는다.
+- 날씨 정보를 제공할 때는 반드시 weatherService.js에서 가져온 오늘 날씨 요약만 사용한다.
+- 날씨 정보를 바탕으로 강수, 기온, 야외 활동 여부에 대한 조언을 제공할 수 있다.
 
 [2. 정보를 찾지 못한 경우]
 - 질문과 관련된 정보를 제공 데이터에서 찾을 수 없다면
