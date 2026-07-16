@@ -39,21 +39,29 @@ function getWeatherLabel(code) {
     71: '눈',
     95: '천둥번개',
   };
-  return map[code] || '기상 상태';
+  return map[code] ?? '기상 상태';
 }
 
 async function loadWeather() {
   try {
     const url =
-      'https://api.open-meteo.com/v1/forecast?latitude=36.11655&longitude=128.3467778&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,rain,precipitation,precipitation_probability,apparent_temperature,weather_code&current=precipitation,temperature_2m,is_day,rain,apparent_temperature&timezone=Asia%2FTokyo';
+      'https://api.open-meteo.com/v1/forecast?latitude=36.11655&longitude=128.3467778&current_weather=true&timezone=Asia%2FTokyo';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('날씨를 불러오지 못했습니다.');
+    const data = await res.json();
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('날씨를 불러오지 못했습니다.');
-
-    const data = await response.json();
-    weather.value = data;
-  } catch (error) {
-    weatherError.value = error.message;
+    // open-meteo 현재 기상 정보 정규화
+    const current = data.current_weather || data.current || {};
+    weather.value = {
+      current: {
+        temperature_2m: current.temperature ?? current.temperature_2m ?? null,
+        precipitation: current.rain ?? current.precipitation ?? 0,
+        weather_code: current.weathercode ?? current.weather_code ?? null,
+      },
+      raw: data,
+    };
+  } catch (err) {
+    weatherError.value = err.message || String(err);
   } finally {
     weatherLoading.value = false;
   }
@@ -61,19 +69,15 @@ async function loadWeather() {
 
 const nextFestivals = computed(() =>
   festivals.value
-    .filter((item) => item.eventstartdate)
+    .filter((f) => f.eventstartdate)
     .sort((a, b) => String(a.eventstartdate).localeCompare(String(b.eventstartdate)))
     .slice(0, 3),
 );
 
 const featuredItems = computed(() => {
   const items = [];
-  if (attractions.value[0]) {
-    items.push({ ...attractions.value[0], _label: '관광지' });
-  }
-  if (restaurants.value[0]) {
-    items.push({ ...restaurants.value[0], _label: '음식점' });
-  }
+  if (attractions.value[0]) items.push({ ...attractions.value[0], _label: '관광지' });
+  if (restaurants.value[0]) items.push({ ...restaurants.value[0], _label: '음식점' });
   return items;
 });
 
@@ -84,9 +88,9 @@ onMounted(async () => {
     loadCategory('festivals'),
   ]);
 
-  attractions.value = attractionData.items.slice(0, 2).map(getItemSummary);
-  restaurants.value = restaurantData.items.slice(0, 2).map(getItemSummary);
-  festivals.value = festivalData.items;
+  attractions.value = (attractionData?.items || []).slice(0, 2).map(getItemSummary);
+  restaurants.value = (restaurantData?.items || []).slice(0, 2).map(getItemSummary);
+  festivals.value = festivalData?.items || [];
   posts.value = getPosts().slice(0, 3);
 
   await loadWeather();
@@ -107,16 +111,9 @@ onMounted(async () => {
     </div>
 
     <div class="hero-highlight">
-      <div class="weather-card">
-        <p class="weather-title">오늘의 구미</p>
-        <div v-if="weatherLoading">날씨 정보를 불러오는 중입니다...</div>
-        <div v-else-if="weatherError">{{ weatherError }}</div>
-        <div v-else>
-          <h3>구미 날씨</h3>
-          <p class="weather-temp">{{ Number(weather.current.temperature_2m).toFixed(0) }}°C</p>
-          <p>{{ getWeatherLabel(weather.current.weather_code) }}</p>
-          <small>강수량 {{ weather.current.precipitation }}mm</small>
-        </div>
+      <div class="hero-panel">
+        <strong>로컬 가이드</strong>
+        <span>구미와 경북의 최신 정보를 빠르게 확인하세요.</span>
       </div>
     </div>
   </section>
@@ -129,17 +126,34 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="category-grid">
-      <RouterLink
-        v-for="card in quickCategoryCards"
-        :key="card.key"
-        class="category-card"
-        :to="`/places/${card.key}`"
-      >
-        <span class="category-icon">{{ card.icon }}</span>
-        <strong>{{ card.label }}</strong>
-        <p>{{ card.desc }}</p>
-      </RouterLink>
+    <!-- 왼쪽: 카테고리 2줄×4, 오른쪽: 오늘의 구미 날씨 -->
+    <div class="category-weather-layout">
+      <div class="category-grid two-rows">
+        <RouterLink
+          v-for="card in quickCategoryCards"
+          :key="card.key"
+          class="category-card"
+          :to="`/places/${card.key}`"
+        >
+          <span class="category-icon">{{ card.icon }}</span>
+          <strong>{{ card.label }}</strong>
+          <p>{{ card.desc }}</p>
+        </RouterLink>
+      </div>
+
+      <aside class="weather-aside">
+        <div class="weather-card">
+          <p class="weather-title">오늘의 구미</p>
+          <div v-if="weatherLoading">날씨 정보를 불러오는 중입니다...</div>
+          <div v-else-if="weatherError">{{ weatherError }}</div>
+          <div v-else>
+            <h3>구미 날씨</h3>
+            <p class="weather-temp">{{ weather.current.temperature_2m !== null ? Number(weather.current.temperature_2m).toFixed(0) + '°C' : '—' }}</p>
+            <p>{{ getWeatherLabel(weather.current.weather_code) }}</p>
+            <small>강수량 {{ weather.current.precipitation ?? 0 }}mm</small>
+          </div>
+        </div>
+      </aside>
     </div>
   </section>
 
