@@ -26,6 +26,7 @@ function seedPosts() {
       updatedAt: now,
       views: 0,
       likes: 3,
+      liked: false,
     },
     {
       id: crypto.randomUUID(),
@@ -36,6 +37,7 @@ function seedPosts() {
       updatedAt: now,
       views: 0,
       likes: 5,
+      liked: true,
     },
   ];
 }
@@ -76,6 +78,7 @@ export function savePost(payload, id = null) {
     updatedAt: now,
     views: 0,
     likes: 0,
+    liked: false,
   };
   writeJson(POSTS_KEY, [post, ...posts]);
   return post;
@@ -104,7 +107,18 @@ export function increaseViews(id) {
 
 export function likePost(id) {
   const posts = getPosts();
-  const next = posts.map((post) => (post.id === id ? { ...post, likes: Number(post.likes || 0) + 1 } : post));
+  const next = posts.map((post) => {
+    if (post.id !== id) return post;
+
+    const liked = Boolean(post.liked ?? false);
+
+    return {
+      ...post,
+      liked: !liked,
+      likes: Math.max(0, Number(post.likes || 0) + (liked ? -1 : 1)),
+    };
+  });
+
   writeJson(POSTS_KEY, next);
   return next.find((post) => post.id === id);
 }

@@ -61,7 +61,7 @@ onMounted(() => {
     <article class="post-content">{{ post.content }}</article>
 
     <div class="action-row">
-      <button class="secondary-button" type="button" @click="onLike">좋아요 {{ post.likes || 0 }}</button>
+      <button class="secondary-button" type="button" @click="onLike"> {{ post.liked ? '좋아요 취소' : '좋아요' }} {{ post.likes || 0 }} </button>
       <button class="secondary-button" type="button" @click="onBookmark">
         {{ bookmarks.includes(post.id) ? '북마크 해제' : '북마크' }}
       </button>

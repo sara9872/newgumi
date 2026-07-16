@@ -11,12 +11,55 @@ const festivals = ref([]);
 const posts = ref([]);
 const loading = ref(true);
 
+const weather = ref(null);
+const weatherLoading = ref(true);
+const weatherError = ref('');
+
+function getWeatherLabel(code) {
+  const map = {
+    0: '맑음',
+    1: '대체로 맑음',
+    2: '부분적으로 흐림',
+    3: '흐림',
+    45: '안개',
+    48: '서리 안개',
+    51: '가벼운 비',
+    61: '비',
+    71: '눈',
+    95: '천둥번개',
+  };
+  return map[code] || '기상 상태';
+}
+
+async function loadWeather() {
+  try {
+    const url =
+      'https://api.open-meteo.com/v1/forecast?latitude=36.11655&longitude=128.3467778&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,rain,precipitation,precipitation_probability,apparent_temperature,weather_code&current=precipitation,temperature_2m,is_day,rain,apparent_temperature&timezone=Asia%2FTokyo';
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('날씨를 불러오지 못했습니다.');
+
+    const data = await response.json();
+    weather.value = data;
+  } catch (error) {
+    weatherError.value = error.message;
+  } finally {
+    weatherLoading.value = false;
+  }
+}
+
+
+
+
 const nextFestivals = computed(() =>
   festivals.value
     .filter((item) => item.eventstartdate)
     .sort((a, b) => String(a.eventstartdate).localeCompare(String(b.eventstartdate)))
     .slice(0, 3),
 );
+
+
+
 
 onMounted(async () => {
   const [attractionData, restaurantData, festivalData] = await Promise.all([
@@ -28,6 +71,8 @@ onMounted(async () => {
   restaurants.value = restaurantData.items.slice(0, 3).map(getItemSummary);
   festivals.value = festivalData.items;
   posts.value = getPosts().slice(0, 4);
+
+  await loadWeather();
   loading.value = false;
 });
 </script>
@@ -48,6 +93,20 @@ onMounted(async () => {
       <span>관광지 · 음식점 · 축제 · 숙박 · 문화시설 · 쇼핑 · 레포츠 · 여행코스</span>
     </div>
   </section>
+
+
+  <section class="section">
+  <div class="weather-card">
+    <div v-if="weatherLoading">날씨 정보를 불러오는 중입니다...</div>
+    <div v-else-if="weatherError">{{ weatherError }}</div>
+    <div v-else>
+      <h3>구미 날씨</h3>
+      <p class="weather-temp">{{ weather.current.temperature_2m }}°C</p>
+      <p>{{ getWeatherLabel(weather.current.weather_code) }}</p>
+      <small>강수량 {{ weather.current.precipitation }}mm</small>
+    </div>
+  </div>
+</section>
 
   <section class="section">
     <div class="section-heading">
