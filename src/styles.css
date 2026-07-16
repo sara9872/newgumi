@@ -705,6 +705,12 @@ dd {
   margin-bottom: 16px;
 }
 
+.comment-password-input {
+  width: 120px;
+  min-width: 100px;
+  flex: 0 0 auto;
+}
+
 .comment-form textarea,
 .comment-item textarea {
   width: 100%;
