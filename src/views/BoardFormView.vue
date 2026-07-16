@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { checkPassword, getPost, savePost } from '../stores/boardStore';
+import { getPost, savePost } from '../stores/boardStore';
 
 const route = useRoute();
 const router = useRouter();
@@ -9,19 +9,18 @@ const editMode = computed(() => Boolean(route.params.id));
 const title = ref('');
 const content = ref('');
 const password = ref('');
-const confirmPassword = ref('');
 const error = ref('');
 
 function submit() {
   error.value = '';
 
-  if (!title.value.trim() || !content.value.trim() || !password.value.trim()) {
-    error.value = '제목, 내용, 비밀번호를 모두 입력해 주세요.';
+  if (!title.value.trim() || !content.value.trim()) {
+    error.value = '제목과 내용을 모두 입력해 주세요.';
     return;
   }
 
-  if (editMode.value && !checkPassword(route.params.id, confirmPassword.value)) {
-    error.value = '기존 비밀번호가 일치하지 않습니다.';
+  if (!editMode.value && !password.value.trim()) {
+    error.value = '수정용 비밀번호를 입력해 주세요.';
     return;
   }
 
@@ -38,11 +37,13 @@ function submit() {
 
 onMounted(() => {
   if (!editMode.value) return;
+
   const post = getPost(route.params.id);
   if (!post) {
     router.push('/board');
     return;
   }
+
   title.value = post.title;
   content.value = post.content;
 });
@@ -60,19 +61,19 @@ onMounted(() => {
       제목
       <input v-model="title" type="text" maxlength="80" placeholder="제목을 입력하세요" />
     </label>
+
     <label>
       내용
       <textarea v-model="content" rows="10" placeholder="내용을 입력하세요"></textarea>
     </label>
-    <label v-if="editMode">
-      기존 비밀번호 확인
-      <input v-model="confirmPassword" type="password" placeholder="기존 비밀번호" />
-    </label>
-    <label>
-      {{ editMode ? '새 수정용 비밀번호' : '수정용 비밀번호' }}
+
+    <label v-if="!editMode">
+      수정용 비밀번호
       <input v-model="password" type="password" placeholder="비밀번호" />
     </label>
+
     <small v-if="error" class="form-error">{{ error }}</small>
+
     <div class="action-row">
       <button class="primary-button" type="submit">{{ editMode ? '수정 완료' : '등록' }}</button>
       <RouterLink class="secondary-button" to="/board">취소</RouterLink>

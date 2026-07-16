@@ -447,14 +447,73 @@ dd {
   gap: 6px;
 }
 
+.action-row .secondary-button {
+  gap: 6px;
+}
+
+.action-stack {
+  display: flex;
+  gap: 8px;
+}
+
 .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 42px;
   height: 42px;
   border: 1px solid rgba(15, 107, 87, 0.2);
-  border-radius: 8px;
-  background: #f8fcfa;
+  border-radius: 999px;
+  background: #fff;
   color: #0f6b57;
-  font-size: 22px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(10, 20, 18, 0.55);
+}
+
+.modal-card {
+  width: min(480px, 100%);
+  padding: 24px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.modal-card h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.modal-card p {
+  margin: 0 0 12px;
+  color: #53635f;
+}
+
+.form-error {
+  color: #b42318;
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.board-main.is-read strong {
+  color: #8d9590;
+  font-weight: 600;
+}
+
+.board-main.is-read span,
+.board-main.is-read small {
+  color: #9aa4a0;
 }
 
 .detail-page {
@@ -582,9 +641,21 @@ dd {
   white-space: nowrap;
 }
 
-.festival-detail {
+.festival-detail-list {
+  display: grid;
+  gap: 24px;
+  align-self: start;
   position: sticky;
   top: 92px;
+}
+
+.festival-detail {
+  position: static;
+}
+
+.calendar-day .more-events {
+  color: #53635f;
+  font-weight: 900;
 }
 
 .festival-detail img {

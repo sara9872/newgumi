@@ -47,8 +47,8 @@ onMounted(load);
 <template>
   <section class="page-header">
     <span class="eyebrow">지역 정보</span>
-    <h1>구미/경북 공공데이터</h1>
-    <p>제공 JSON 데이터를 프론트엔드에서 직접 불러와 관광지와 생활 정보를 보여줍니다.</p>
+    <h1>구미/경북 알아보기</h1>
+    <p> 구미와 경북지역의 관광지와 생활 정보를 보여줍니다.</p>
   </section>
 
   <section class="toolbar">
