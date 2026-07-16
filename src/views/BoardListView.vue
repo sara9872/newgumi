@@ -75,7 +75,7 @@ onMounted(refresh);
           :class="{ 'is-read': post.read }"
           @click="onRead(post.id)"
         >
-          <strong>{{ post.title }}</strong>
+          <strong>{{ post.title }} <span class="comment-badge">[{{ post.comments?.length || 0 }}]</span></strong>
           <span>{{ post.content }}</span>
           <small>{{ formatPostDate(post.createdAt) }} · 조회 {{ post.views || 0 }} · 좋아요 {{ post.likes || 0 }}</small>
         </RouterLink>
