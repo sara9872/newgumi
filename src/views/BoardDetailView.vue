@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faHeart, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faPenToSquare, faStar, faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   addComment,
   checkPassword,
@@ -21,7 +21,9 @@ import {
 const byPrefixAndName = {
   fas: {
     heart: faHeart,
+    penToSquare: faPenToSquare,
     star: faStar,
+    trash: faTrash,
   },
 };
 
@@ -224,8 +226,13 @@ onMounted(() => {
         />
       </button>
 
-      <button class="secondary-button" type="button" @click="openAuthModal('edit')">수정</button>
-      <button class="secondary-button" type="button" @click="openAuthModal('delete')">삭제</button>
+      <button class="icon-button" type="button" @click="openAuthModal('edit')" aria-label="게시글 수정">
+        <FontAwesomeIcon :icon="byPrefixAndName.fas['penToSquare']" style="color: #bdbdbd;" />
+      </button>
+
+      <button class="icon-button" type="button" @click="openAuthModal('delete')" aria-label="게시글 삭제">
+        <FontAwesomeIcon :icon="byPrefixAndName.fas['trash']" style="color: #bdbdbd;" />
+      </button>
     </div>
 
     <section class="comment-section">
@@ -234,7 +241,7 @@ onMounted(() => {
       <form class="comment-form" @submit.prevent="submitComment">
         <textarea v-model="commentDraft" rows="3" placeholder="댓글을 남겨보세요."></textarea>
         <div class="comment-form-footer">
-          <input v-model="commentPassword" type="password" placeholder="비밀번호" />
+          <input class="comment-password-input" v-model="commentPassword" type="password" placeholder="비밀번호" />
           <button class="primary-button" type="submit">댓글 등록</button>
         </div>
         <small v-if="commentError" class="form-error">{{ commentError }}</small>
@@ -251,17 +258,20 @@ onMounted(() => {
           <textarea v-else v-model="editingCommentContent" rows="3"></textarea>
 
           <div class="comment-actions">
-            <button v-if="editingCommentId !== comment.id" class="secondary-button" type="button" @click="startEditComment(comment)">
-              수정
+            <button v-if="editingCommentId !== comment.id" class="icon-button" type="button" @click="startEditComment(comment)" aria-label="댓글 수정">
+              <FontAwesomeIcon :icon="byPrefixAndName.fas['penToSquare']" style="color: #bdbdbd;" />
             </button>
-            <button v-else class="primary-button" type="button" @click="submitEditComment(comment.id)">
-              수정 완료
+
+            <button v-else class="icon-button" type="button" @click="submitEditComment(comment.id)" aria-label="댓글 수정 완료">
+              <FontAwesomeIcon :icon="byPrefixAndName.fas['penToSquare']" style="color: #bdbdbd;" />
             </button>
-            <button v-if="editingCommentId === comment.id" class="secondary-button" type="button" @click="cancelEditComment">
-              취소
+
+            <button v-if="editingCommentId === comment.id" class="icon-button" type="button" @click="cancelEditComment" aria-label="댓글 수정 취소">
+              ✕
             </button>
-            <button class="secondary-button" type="button" @click="openCommentAuthModal('delete', comment.id)">
-              삭제
+
+            <button class="icon-button" type="button" @click="openCommentAuthModal('delete', comment.id)" aria-label="댓글 삭제">
+              <FontAwesomeIcon :icon="byPrefixAndName.fas['trash']" style="color: #bdbdbd;" />
             </button>
           </div>
         </article>
