@@ -13,7 +13,7 @@ const messages = ref([
 ]);
 const logEl = ref(null);
 
-const examples = ['구미 축제 추천해줘', '가족이 갈 관광지 알려줘', '음식점 찾아줘', '게시판 글 검색해줘', '오늘 비 오는데 갈만한 곳 있어?'];
+const examples = ['구미 축제 추천해줘', '가족이 갈 관광지 알려줘', '음식점 찾아줘', '게시판 글 검색해줘', '오늘 날씨 참고해서 갈만한 곳 있어?'];
 
 async function scrollToBottom() {
   await nextTick();

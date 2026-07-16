@@ -49,8 +49,6 @@ async function loadWeather() {
     const res = await fetch(url);
     if (!res.ok) throw new Error('날씨를 불러오지 못했습니다.');
     const data = await res.json();
-
-    // open-meteo 현재 기상 정보 정규화
     const current = data.current_weather || data.current || {};
     weather.value = {
       current: {
@@ -61,7 +59,7 @@ async function loadWeather() {
       raw: data,
     };
   } catch (err) {
-    weatherError.value = err.message || String(err);
+    weatherError.value = String(err?.message ?? err);
   } finally {
     weatherLoading.value = false;
   }
@@ -99,21 +97,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="hero-section">
-    <div class="hero-copy">
+  <!-- Hero: 가로로 꽉 차게, 우측 패널(로컬 가이드) 제거 -->
+  <section class="hero-section hero-fullwidth">
+    <div
+      class="hero-copy"
+      style="background: linear-gradient(135deg, rgba(27,68,156,0.95), rgba(27,68,156,0.6)), url('https://www.kbsecuritynews.com/imgdata/kbsecuritynews_com/202112/2021122545573859.jpg') center/cover no-repeat;"
+    >
       <span class="eyebrow">구미/경북 지역 정보와 익명 커뮤니티</span>
       <h1>구미·경북을 더 가깝게</h1>
       <p>관광지, 음식점, 축제 정보를 한곳에서 보고 익명 게시판으로 지역 이야기를 나눕니다.</p>
       <div class="hero-actions">
         <RouterLink class="primary-button" to="/places">지역 정보 보기</RouterLink>
         <RouterLink class="secondary-button" to="/board">게시판 가기</RouterLink>
-      </div>
-    </div>
-
-    <div class="hero-highlight">
-      <div class="hero-panel">
-        <strong>로컬 가이드</strong>
-        <span>구미와 경북의 최신 정보를 빠르게 확인하세요.</span>
       </div>
     </div>
   </section>
@@ -126,7 +121,6 @@ onMounted(async () => {
       </div>
     </div>
 
-    <!-- 왼쪽: 카테고리 2줄×4, 오른쪽: 오늘의 구미 날씨 -->
     <div class="category-weather-layout">
       <div class="category-grid two-rows">
         <RouterLink

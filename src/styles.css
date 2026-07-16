@@ -1217,3 +1217,37 @@ dd {
     border-radius: 0;
   }
 }
+/* HERO: 오른쪽 패널 제거하고 히어로를 가로로 꽉 채우는 오버라이드 */
+.hero-section.hero-fullwidth {
+  display: block;
+  padding: 0;
+  margin: 0;
+}
+
+.hero-section.hero-fullwidth .hero-copy {
+  width: 100%;
+  border-radius: 0;
+  min-height: 360px;
+  padding: clamp(28px, 6vw, 72px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #fff;
+  box-shadow: none;
+}
+
+/* 기존에 남아 있을 수 있는 우측 패널 규칙 무력화 */
+.hero-highlight,
+.hero-panel,
+.hero-mascot {
+  display: none !important;
+}
+
+/* 반응형 유지 */
+@media (max-width: 960px) {
+  .hero-section.hero-fullwidth .hero-copy {
+    min-height: 300px;
+    padding: 24px;
+    border-radius: 12px;
+  }
+}
